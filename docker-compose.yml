@@ -1,0 +1,14 @@
+version: '3'
+services:
+  python:
+    build: .
+    image: python
+    container_name: python
+    working_dir: '/tmp/workspace'
+    tty: true
+    volumes:
+      - ./out:/tmp/workspace/out
+      - ./bin:/tmp/workspace/bin
+      - ./templates:/tmp/workspace/templates
+      - ./vars:/tmp/workspace/vars
+    privileged: true
