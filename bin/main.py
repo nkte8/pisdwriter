@@ -15,11 +15,12 @@ os_info = {
         }
 }
 
-
 def run(img_path):
     context = pyudev.Context()
     monitor = pyudev.Monitor.from_netlink(context)
     monitor.filter_by('block')
+
+    print("monitoring device is ready.")
 
     for device in iter(monitor.poll, None):
         if 'ID_FS_TYPE' in device and \
