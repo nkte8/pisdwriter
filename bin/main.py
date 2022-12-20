@@ -64,5 +64,6 @@ if __name__ == "__main__":
         cloudinit_info["url"],
         cloudinit_info["path"])
 
-    daemon_run(os_info["ubuntu22"]["path"])
+    daemon_run(os_info["ubuntu22"]["path"],
+                cloudinit_info["path"])
 
