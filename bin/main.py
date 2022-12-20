@@ -38,7 +38,7 @@ def daemon_run(img_path, cinit_path):
             sd_writer.write_os_to_sdcard(img_path,write_device=device_node)
             print("device write completed!")
 
-            sd_writer.write_cloudinit_to_sdcard(
+            sd_writer.write_configs_to_sdcard(
                 device_node + "1",
                 "/",
                 ["out/network-config","out/user-data"])
