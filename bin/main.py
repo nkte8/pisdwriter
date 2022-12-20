@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -B
 # -*- coding: utf-8 -*-
-import jinja2_writter, sdwrite_os
-import time, os, sys, pyudev
+import jinja2_writter, sd_writer, downloader
+import pyudev
 
 template_files={
     "network-config",
@@ -10,12 +10,18 @@ template_files={
 
 os_info = {
     "ubuntu22" : {
-        "os_url": "https://cdimage.ubuntu.com/releases/22.04.1/release/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz",
-        "dl_path": "/tmp/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz"
+        "url": "https://cdimage.ubuntu.com/releases/22.04.1/release/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz",
+        "path": "/tmp/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz"
         }
 }
 
-def run(img_path):
+cloudinit_info = {
+    # "url": "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/cloud-init/22.4.2-0ubuntu0~20.04.2/cloud-init_22.4.2.orig.tar.gz",
+    "url": "https://launchpadlibrarian.net/638360245/cloud-init_22.4.2.orig.tar.gz",
+    "path": "/tmp/cloudinit.tar.gz"
+}
+
+def daemon_run(img_path, cinit_path):
     context = pyudev.Context()
     monitor = pyudev.Monitor.from_netlink(context)
     monitor.filter_by('block')
@@ -27,19 +33,36 @@ def run(img_path):
             str(device.device_type) == "disk" and \
             str(device.action) == "add":
             device_node = device.device_node
-            print('device find: {0}'.format(device_node))
+            print('device new connection at {0}'.format(device_node))
 
-            sdwrite_os.write_to_sdcard(img_path,write_device=device_node)
-            print("write completed!")
+            sd_writer.write_os_to_sdcard(img_path,write_device=device_node)
+            print("device write completed!")
+
+            sd_writer.write_cloudinit_to_sdcard(
+                device_node + "1",
+                "/",
+                ["out/network-config","out/user-data"])
+            print("new config write completed!")
+
+            sd_writer.write_cloudinit_to_sdcard(
+                device_node + "2",
+                "/usr/lib/python3/dist-packages/",
+                cinit_path,
+                "**/cloudinit")
+            print("new cloudinit write completed!")
 
 if __name__ == "__main__":
 
     for template_file in template_files:
         jinja2_writter.write_config(template_file)
 
-    sdwrite_os.download_os_image(
-        os_info["ubuntu22"]["os_url"],
-        os_info["ubuntu22"]["dl_path"])
+    downloader.download_file(
+        os_info["ubuntu22"]["url"],
+        os_info["ubuntu22"]["path"])
 
-    run(os_info["ubuntu22"]["dl_path"])
+    downloader.download_file(
+        cloudinit_info["url"],
+        cloudinit_info["path"])
+
+    daemon_run(os_info["ubuntu22"]["path"])
 
