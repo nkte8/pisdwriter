@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import jinja2, yaml, subprocess, os
+from importlib.resources import read_text
 
 def load_vars():
     wifi_config_path = 'private/wifi.yml'
