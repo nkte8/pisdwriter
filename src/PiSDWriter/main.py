@@ -51,8 +51,7 @@ def daemon_run(img_path, cinit_path):
                 "**/cloudinit")
             print("new cloudinit write completed!")
 
-if __name__ == "__main__":
-
+def main():
     for template_file in template_files:
         jinja2_writter.write_config(template_file)
 
@@ -69,3 +68,5 @@ if __name__ == "__main__":
     daemon_run(os_info["ubuntu22"]["path"],
                 cloudinit_info["path"])
 
+if __name__ == "__main__":
+    main()
