@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -B
 # -*- coding: utf-8 -*-
-import jinja2_writter, sd_writer, downloader
+from PiSDWriter import jinja2_writter, sd_writer, downloader 
 import pyudev
 
 template_files={
