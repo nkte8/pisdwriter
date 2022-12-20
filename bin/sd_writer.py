@@ -15,18 +15,37 @@ def write_os_to_sdcard(os_path, write_device="/dev/null"):
         dd_result.wait()
 
 def __mount_and_write_sdcard(device_node, function, *args):
-    with tempfile.TemporaryDirectory(prefix="tmp_", dir=".") as dirpath:
+    dirpath = "./mnt_tmp"
+    _ = subprocess.Popen([
+        "mkdir", dirpath
+        ],stdout=subprocess.PIPE)
+    _.wait()
+
+    _ = subprocess.Popen([
+        "mount", device_node, dirpath
+        ],stdout=subprocess.PIPE)
+    _.wait()
+    
+    function(dirpath, *args)
+
+    while True:
         _ = subprocess.Popen([
-            "mount", device_node, dirpath
+            "mountpoint", dirpath
             ],stdout=subprocess.PIPE)
         _.wait()
-        
-        function(dirpath, *args)
+        if _.returncode != 0:
+            print("umount " + dirpath + " sccessed")
+            break
 
         _ = subprocess.Popen([
             "umount", dirpath
             ],stdout=subprocess.PIPE)
         _.wait()
+    
+    _ = subprocess.Popen([
+        "rmdir", dirpath
+        ],stdout=subprocess.PIPE)
+    _.wait()
 
 def __open_gz_copy_to_sdcard(mntdir, dest, src, pattern):
     with tempfile.TemporaryDirectory(prefix="tmp_", dir=".") as dirpath:
@@ -35,10 +54,10 @@ def __open_gz_copy_to_sdcard(mntdir, dest, src, pattern):
             ],stdout=subprocess.PIPE)
         tar_output.wait()
 
-        find_first = [k for k in pathlib.Path(dirpath).glob(pattern)][0]
+        find_first = str([k for k in pathlib.Path(dirpath).glob(pattern)][0])
 
         cp_output=subprocess.Popen([
-            "cp", "-f", find_first, mntdir + dest
+            "cp", "-rf", find_first, mntdir + dest
             ],stdout=subprocess.PIPE)
         print("copy successed: " + find_first)
         cp_output.wait()
@@ -54,8 +73,8 @@ def __open_conf_copy_to_sdcard(mntdir, dest, src):
         cp_output=subprocess.Popen([
             "cp", "-f", f, mntdir + dest
             ],stdout=subprocess.PIPE)
-        print("copy successed: " + f)
         cp_output.wait()
+        print("copy successed: " + f)
 
 def write_configs_to_sdcard(device_node,dest,*src):
     callback = __open_conf_copy_to_sdcard

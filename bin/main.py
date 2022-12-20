@@ -56,10 +56,12 @@ if __name__ == "__main__":
     for template_file in template_files:
         jinja2_writter.write_config(template_file)
 
+    print("download: " + os_info["ubuntu22"]["url"])
     downloader.download_file(
         os_info["ubuntu22"]["url"],
         os_info["ubuntu22"]["path"])
 
+    print("download: " + cloudinit_info["url"])
     downloader.download_file(
         cloudinit_info["url"],
         cloudinit_info["path"])
