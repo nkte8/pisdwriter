@@ -1,0 +1,10 @@
+[Unit]
+Description=write RaspberryPi SD easiry
+After=local-fs.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/psdwriter --daemon
+
+[Install]
+WantedBy=multi-user.target

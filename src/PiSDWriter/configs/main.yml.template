@@ -1,0 +1,8 @@
+---
+gateway_addr: XXX.XXX.XXX.XXX
+nameserver_addrs:
+  - XXX.XXX.XXX.XXX
+  - XXX.XXX.XXX.XXX
+authorized_keys:
+  - (public key)
+ip_address: XXX.XXX.XXX.XXX

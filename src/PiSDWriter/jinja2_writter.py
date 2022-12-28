@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from PiSDWriter import global_vars as g
 import jinja2, yaml, subprocess, os
 
 def load_vars():
-    wifi_config_path = 'private/wifi.yml'
-    config = yaml.safe_load(open('vars/main.yml'))
+    main_config_path = g.conf_dir + '/main.yml'
+    wifi_config_path = g.conf_dir + '/wifi.yml'
+    config = yaml.safe_load(open(main_config_path))
 
     if os.path.isfile(wifi_config_path):
         wifi_config = yaml.safe_load(open(wifi_config_path))
@@ -39,11 +41,15 @@ def get_wifi_passwd(ssid, password):
     return result.replace("\n", " ")
 
 def write_config(file_name):
-    fileSystemLoader = jinja2.FileSystemLoader(searchpath="./templates")
+    templates_path = g.app_dir + '/templates'
+    outconf_path = g.out_dir
+    os.makedirs(outconf_path, exist_ok=True)
+
+    fileSystemLoader = jinja2.FileSystemLoader(searchpath=templates_path)
     env = jinja2.Environment(loader=fileSystemLoader)
     template = env.get_template(file_name+'.j2')
 
     template_vars = load_vars()
 
-    with open('./out/'+file_name, 'w') as file:
+    with open(outconf_path + '/' + file_name, 'w') as file:
         file.write(template.render(template_vars))
