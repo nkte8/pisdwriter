@@ -7,8 +7,7 @@ services:
     working_dir: '/tmp/workspace'
     tty: true
     volumes:
+      # - ./:/tmp/workspace
       - ./out:/tmp/workspace/out
       - ./src:/tmp/workspace/src
-      - ./templates:/tmp/workspace/templates
-      - ./vars:/tmp/workspace/vars
     privileged: true
