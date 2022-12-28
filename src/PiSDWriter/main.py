@@ -47,7 +47,7 @@ def daemon_run(img_path, cinit_path):
             sd_writer.write_os_to_sdcard(img_path,write_device=device_node)
             print("device write completed!")
 
-            print('start write configs to {1}'.format(device_node + "1"))
+            print('start write configs to {0}'.format(device_node + "1"))
             sd_writer.write_configs_to_sdcard(
                 device_node + "1",
                 "/",
@@ -55,7 +55,7 @@ def daemon_run(img_path, cinit_path):
                   g.app_dir + "/output/user-data"])
             print("new config write completed!")
 
-            print('start restore newer cloud-init to {1}'.format(device_node + "2"))
+            print('start restore newer cloud-init to {0}'.format(device_node + "2"))
             sd_writer.write_cloudinit_to_sdcard(
                 device_node + "2",
                 "/usr/lib/python3/dist-packages/",
