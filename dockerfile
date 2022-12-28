@@ -10,6 +10,8 @@ RUN apt-get update && \
         python3-pip \
         wpasupplicant
 
-RUN python3 setup.py install
+RUN pip3 install --upgrade pip setuptools wheel && \
+    python3 setup.py bdist_wheel && \
+    pip3 install dist/PiSDWriter*.whl
 
 ENTRYPOINT ["/bin/sh"]
