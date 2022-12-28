@@ -4,7 +4,8 @@ After=local-fs.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/psdwriter --daemon
+ExecStart=/usr/local/bin/pisdwriter --daemon
+Environment=PYTHONUNBUFFERED=1
 
 [Install]
 WantedBy=multi-user.target
