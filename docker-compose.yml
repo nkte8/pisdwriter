@@ -7,7 +7,5 @@ services:
     working_dir: '/tmp/workspace'
     tty: true
     volumes:
-      # - ./:/tmp/workspace
-      - ./out:/tmp/workspace/out
-      - ./src:/tmp/workspace/src
+      - ./dist:/tmp/workspace/dist
     privileged: true
