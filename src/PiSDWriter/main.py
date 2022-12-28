@@ -43,9 +43,11 @@ def daemon_run(img_path, cinit_path):
             device_node = device.device_node
             print('device new connection at {0}'.format(device_node))
 
+            print('start write {0} to {1}'.format(os.path.basename(img_path),device_node))
             sd_writer.write_os_to_sdcard(img_path,write_device=device_node)
             print("device write completed!")
 
+            print('start write configs to {1}'.format(device_node + "1"))
             sd_writer.write_configs_to_sdcard(
                 device_node + "1",
                 "/",
@@ -53,12 +55,14 @@ def daemon_run(img_path, cinit_path):
                   g.app_dir + "/output/user-data"])
             print("new config write completed!")
 
+            print('start restore newer cloud-init to {1}'.format(device_node + "2"))
             sd_writer.write_cloudinit_to_sdcard(
                 device_node + "2",
                 "/usr/lib/python3/dist-packages/",
                 cinit_path,
                 "**/cloudinit")
-            print("new cloudinit write completed!")
+            print("new cloudinit restore completed!")
+            print("New SD card initialized! you can remove media.")
 
 def download(os_name):
     os.makedirs(g.temp_dir, exist_ok=True)
