@@ -12,21 +12,21 @@ template_files={
 os_info = {
     "ubuntu22" : {
         "url": "https://cdimage.ubuntu.com/releases/22.04.1/release/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz",
-        "path":  g.temp_dir + "/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz"
+        "path":  g.os_dir + "/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz"
         }
 }
 
 cloudinit_info = {
     # "url": "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/cloud-init/22.4.2-0ubuntu0~20.04.2/cloud-init_22.4.2.orig.tar.gz",
     "url": "https://launchpadlibrarian.net/638360245/cloud-init_22.4.2.orig.tar.gz",
-    "path":  g.temp_dir + "/cloudinit.tar.gz"
+    "path":  g.os_dir + "/cloudinit.tar.gz"
 }
 
 def daemon_run(img_path, cinit_path):
     if not os.path.exists(g.out_dir):
         print("Config file seems not ready: run 'pisdwriter --setup or --configure'")
         return
-    if not os.path.exists(g.temp_dir):
+    if not os.path.exists(g.os_dir):
         print("OS Image seems not ready: run 'pisdwriter --setup or --download'")
         return
 
@@ -65,7 +65,7 @@ def daemon_run(img_path, cinit_path):
             print("New SD card initialized! you can remove media.")
 
 def download(os_name):
-    os.makedirs(g.temp_dir, exist_ok=True)
+    os.makedirs(g.os_dir, exist_ok=True)
 
     print("download: " + os_info[os_name]["url"])
     downloader.download_file(
@@ -85,7 +85,7 @@ def setup():
     system.setup_systemd()
 
 def cleanup():
-    system.remove(g.temp_dir)
+    system.remove(g.os_dir)
     system.remove(g.out_dir)
     system.remove_systemd()
 
