@@ -53,3 +53,4 @@ def write_config(file_name):
 
     with open(outconf_path + '/' + file_name, 'w') as file:
         file.write(template.render(template_vars))
+    print("config: " + file_name + " is ready")

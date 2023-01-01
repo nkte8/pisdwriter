@@ -83,6 +83,7 @@ def configure():
 
 def cleanup():
     shutil.rmtree(g.temp_dir,ignore_errors=True)
+    shutil.rmtree(g.out_dir,ignore_errors=True)
 
 def main():
     parser = argparse.ArgumentParser(description='write RaspberryPi SD easiry')
