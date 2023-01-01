@@ -1,8 +1,8 @@
 #!/usr/bin/python3 -B
 # -*- coding: utf-8 -*-
 from PiSDWriter import global_vars as g
-from PiSDWriter import jinja2_writter, sd_writer, downloader 
-import pyudev, argparse, os, shutil
+from PiSDWriter import jinja2_writter, sd_writer, downloader, system
+import pyudev, argparse, os
 
 template_files={
     "network-config",
@@ -79,32 +79,39 @@ def download(os_name):
 
 def configure():
     for template_file in template_files:
-        jinja2_writter.write_config(template_file)
+        jinja2_writter.write_config(template_file, g.out_dir)
+
+def setup():
+    system.setup_systemd()
 
 def cleanup():
-    shutil.rmtree(g.temp_dir,ignore_errors=True)
-    shutil.rmtree(g.out_dir,ignore_errors=True)
+    system.remove(g.temp_dir)
+    system.remove(g.out_dir)
+    system.remove_systemd()
 
 def main():
     parser = argparse.ArgumentParser(description='write RaspberryPi SD easiry')
-    parser.add_argument('-d','--daemon', action='store_true',
-                        help='Start process with created data: ' + g.out_dir)
-    parser.add_argument('-i','--setup', action='store_true',
-                        help='Run prepair startup(download & configure)')
+    parser.add_argument('-i','--install', action='store_true',
+                        help='Run prepair startup(download & configure & setup)')
     parser.add_argument('--download', action='store_true',
                         help='Download os image and cloud-init.')  
     parser.add_argument('--configure', action='store_true',
                         help='Configure write data from config: ' + g.conf_dir)
+    parser.add_argument('--setup', action='store_true',
+                        help='Setup as systemd service.')
+    parser.add_argument('--daemon', action='store_true',
+                        help='Start process with created data: ' + g.out_dir)
     parser.add_argument('--clean', action='store_true',
                         help='Cleanup downloaded images')
     args = parser.parse_args()
 
     if os.geteuid() != 0 or os.getuid() != 0 :
-        print("INFO: This application needs root permision for write on device.")
+        print("WARNING: This application needs root permision for write on device.")
 
-    if args.setup:
+    if args.install:
         download("ubuntu22")
         configure()
+        setup()
     elif args.daemon:
         daemon_run(os_info["ubuntu22"]["path"],
                 cloudinit_info["path"])
@@ -112,6 +119,8 @@ def main():
         download("ubuntu22")
     elif args.configure:
         configure()
+    elif args.setup:
+        setup()
     elif args.clean:
         cleanup()
     else:
