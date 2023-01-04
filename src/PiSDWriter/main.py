@@ -100,9 +100,9 @@ def main():
     parser.add_argument('--setup', action='store_true',
                         help='Setup as systemd service.')
     parser.add_argument('--daemon', action='store_true',
-                        help='Start process with created data: ' + g.out_dir)
+                        help='Start process with configured data: ' + g.out_dir)
     parser.add_argument('--clean', action='store_true',
-                        help='Cleanup downloaded images')
+                        help='Cleanup downloaded images, output config and disable PiSDWriter.service')
     args = parser.parse_args()
 
     if os.geteuid() != 0 or os.getuid() != 0 :
