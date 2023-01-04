@@ -40,9 +40,8 @@ def get_wifi_passwd(ssid, password):
     awk_result.stdout.close()
     return result.replace("\n", " ")
 
-def write_config(file_name):
-    templates_path = g.app_dir + '/templates'
-    outconf_path = g.out_dir
+def write_config(file_name, outconf_path):
+    templates_path = g.template_dir
     os.makedirs(outconf_path, exist_ok=True)
 
     fileSystemLoader = jinja2.FileSystemLoader(searchpath=templates_path)

@@ -1,8 +1,8 @@
 #!/usr/bin/python3 -B
 # -*- coding: utf-8 -*-
 from PiSDWriter import global_vars as g
-from PiSDWriter import jinja2_writter, sd_writer, downloader 
-import pyudev, argparse, os, shutil
+from PiSDWriter import jinja2_writter, sd_writer, downloader, system
+import pyudev, argparse, os
 
 template_files={
     "network-config",
@@ -12,21 +12,21 @@ template_files={
 os_info = {
     "ubuntu22" : {
         "url": "https://cdimage.ubuntu.com/releases/22.04.1/release/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz",
-        "path":  g.temp_dir + "/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz"
+        "path":  g.os_dir + "/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz"
         }
 }
 
 cloudinit_info = {
     # "url": "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/cloud-init/22.4.2-0ubuntu0~20.04.2/cloud-init_22.4.2.orig.tar.gz",
     "url": "https://launchpadlibrarian.net/638360245/cloud-init_22.4.2.orig.tar.gz",
-    "path":  g.temp_dir + "/cloudinit.tar.gz"
+    "path":  g.os_dir + "/cloudinit.tar.gz"
 }
 
 def daemon_run(img_path, cinit_path):
     if not os.path.exists(g.out_dir):
         print("Config file seems not ready: run 'pisdwriter --setup or --configure'")
         return
-    if not os.path.exists(g.temp_dir):
+    if not os.path.exists(g.os_dir):
         print("OS Image seems not ready: run 'pisdwriter --setup or --download'")
         return
 
@@ -65,7 +65,7 @@ def daemon_run(img_path, cinit_path):
             print("New SD card initialized! you can remove media.")
 
 def download(os_name):
-    os.makedirs(g.temp_dir, exist_ok=True)
+    os.makedirs(g.os_dir, exist_ok=True)
 
     print("download: " + os_info[os_name]["url"])
     downloader.download_file(
@@ -79,32 +79,39 @@ def download(os_name):
 
 def configure():
     for template_file in template_files:
-        jinja2_writter.write_config(template_file)
+        jinja2_writter.write_config(template_file, g.out_dir)
+
+def setup():
+    system.setup_systemd()
 
 def cleanup():
-    shutil.rmtree(g.temp_dir,ignore_errors=True)
-    shutil.rmtree(g.out_dir,ignore_errors=True)
+    system.remove(g.os_dir)
+    system.remove(g.out_dir)
+    system.remove_systemd()
 
 def main():
     parser = argparse.ArgumentParser(description='write RaspberryPi SD easiry')
-    parser.add_argument('-d','--daemon', action='store_true',
-                        help='Start process with created data: ' + g.out_dir)
-    parser.add_argument('-i','--setup', action='store_true',
-                        help='Run prepair startup(download & configure)')
+    parser.add_argument('-i','--install', action='store_true',
+                        help='Run prepair startup(download & configure & setup)')
     parser.add_argument('--download', action='store_true',
                         help='Download os image and cloud-init.')  
     parser.add_argument('--configure', action='store_true',
                         help='Configure write data from config: ' + g.conf_dir)
+    parser.add_argument('--setup', action='store_true',
+                        help='Setup as systemd service.')
+    parser.add_argument('--daemon', action='store_true',
+                        help='Start process with configured data: ' + g.out_dir)
     parser.add_argument('--clean', action='store_true',
-                        help='Cleanup downloaded images')
+                        help='Cleanup downloaded images, output config and disable PiSDWriter.service')
     args = parser.parse_args()
 
     if os.geteuid() != 0 or os.getuid() != 0 :
-        print("INFO: This application needs root permision for write on device.")
+        print("WARNING: This application needs root permision for write on device.")
 
-    if args.setup:
+    if args.install:
         download("ubuntu22")
         configure()
+        setup()
     elif args.daemon:
         daemon_run(os_info["ubuntu22"]["path"],
                 cloudinit_info["path"])
@@ -112,6 +119,8 @@ def main():
         download("ubuntu22")
     elif args.configure:
         configure()
+    elif args.setup:
+        setup()
     elif args.clean:
         cleanup()
     else:
