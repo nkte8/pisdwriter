@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -B
 # -*- coding: utf-8 -*-
 from PiSDWriter import global_vars as g
-from PiSDWriter import jinja2_writter, sd_writer, downloader, system
+from PiSDWriter import jinja2_writter, sd_writer, downloader, system, notification
 import pyudev, argparse, os
 
 template_files={
@@ -11,7 +11,7 @@ template_files={
 
 os_info = {
     "ubuntu22" : {
-        "url": "https://cdimage.ubuntu.com/releases/22.04.1/release/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz",
+        "url": "https://cdimage.ubuntu.com/releases/22.04.3/release/ubuntu-22.04.3-preinstalled-server-arm64+raspi.img.xz",
         "path":  g.os_dir + "/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz"
         }
 }
@@ -44,6 +44,10 @@ def daemon_run(img_path, cinit_path):
             print('device new connection at {0}'.format(device_node))
 
             print('start write {0} to {1}'.format(os.path.basename(img_path),device_node))
+            notification.send_notification(
+                setting_path = g.conf_dir + "/settings.json",
+                message = "Start Process:)"
+            )
             sd_writer.write_os_to_sdcard(img_path,write_device=device_node)
             print("device write completed!")
 
@@ -63,6 +67,10 @@ def daemon_run(img_path, cinit_path):
                 "**/cloudinit")
             print("new cloudinit restore completed!")
             print("New SD card initialized! you can remove media.")
+            notification.send_notification(
+                setting_path = g.conf_dir + "/settings.json",
+                message = "SDcard initialize success;)"
+            )
 
 def download(os_name):
     os.makedirs(g.os_dir, exist_ok=True)
@@ -78,8 +86,9 @@ def download(os_name):
         cloudinit_info["path"])
 
 def configure():
+    config = jinja2_writter.load_vars()
     for template_file in template_files:
-        jinja2_writter.write_config(template_file, g.out_dir)
+        jinja2_writter.write_config(template_file, g.out_dir, config)
 
 def setup():
     system.setup_systemd()

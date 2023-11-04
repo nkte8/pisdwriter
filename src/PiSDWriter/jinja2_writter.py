@@ -40,7 +40,7 @@ def get_wifi_passwd(ssid, password):
     awk_result.stdout.close()
     return result.replace("\n", " ")
 
-def write_config(file_name, outconf_path):
+def write_config(file_name, outconf_path, template_vars):
     templates_path = g.template_dir
     os.makedirs(outconf_path, exist_ok=True)
 
@@ -48,8 +48,8 @@ def write_config(file_name, outconf_path):
     env = jinja2.Environment(loader=fileSystemLoader)
     template = env.get_template(file_name+'.j2')
 
-    template_vars = load_vars()
+    # template_vars = load_vars()
 
     with open(outconf_path + '/' + file_name, 'w') as file:
         file.write(template.render(template_vars))
-    print("config: " + file_name + " is ready")
+    print(file_name + " is ready")
