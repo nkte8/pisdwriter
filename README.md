@@ -37,11 +37,26 @@ wifi_setting:
   password: wifi_password #平文でOK Raspberrt Piにはwpa_suppricantで難読化される。
 ```
 
+必要であればLine Notification APIを用いて通知を送信することができます。  
+https://notify-bot.line.me/ja/ にてtokenを取得後、`<pythonモジュールインストール先ディレクトリ>/dist-packages/PiSDWriter/configs/settings.json`を設定。
+
+```json
+{
+    "line_notification": {
+        "token": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    }
+}
+```
+設定作成後、以下を実行します。
+```
+sudo systemctl restart pisdwriter
+```
+
 ### 2. セットアップ
 
-rootユーザにて`pisdwriter -i`でOSイメージのダウンロードとtemplateの作成・systemdへ設定します。
+`pisdwriter -i`でOSイメージのダウンロードとtemplateの作成・systemdへ設定します。
 ```log
-root@ubuntu:~# pisdwriter -i
+$ sudo pisdwriter -i
 download: https://cdimage.ubuntu.com/releases/22.04.1/release/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz
 100%|████████████████████████████████████████████████████████████████████████████████| 962M/962M [08:36<00:00, 1.86MB/s]download: https://launchpadlibrarian.net/638360245/cloud-init_22.4.2.orig.tar.gz
 100%|███████████████████████████████████████████████████████████████████████████████| 1.50M/1.50M [00:01<00:00, 994kB/s]config: network-config is ready
@@ -51,24 +66,15 @@ Created symlink /etc/systemd/system/multi-user.target.wants/PiSDWriter.service �
 
 # 使用方法
 
-プログラムが実行されている間にUSBにデータデバイスが差し込まれると、問答無用でRaspberryPiを実行できるよう、書き込みを行います。
+プログラムが実行されている間にUSBにデータデバイスが差し込まれると、デバイスを検知してSDカードへ書き込みを行います。
+ログはjournalで確認してください。
 
-以下はヘルプメッセージです。
-```log
-root@ubuntu:~# pisdwriter --help
-usage: pisdwriter [-h] [-i] [--download] [--configure] [--setup] [--daemon] [--clean]
-
-write RaspberryPi SD easiry
-
-options:
-  -h, --help     show this help message and exit
-  -i, --install  Run prepair startup(download & configure & setup)
-  --download     Download os image and cloud-init.
-  --configure    Configure write data from config: /usr/local/lib/python3.10/dist-packages/PiSDWriter/configs
-  --setup        Setup as systemd service.
-  --daemon       Start process with configured data: /usr/local/lib/python3.10/dist-packages/PiSDWriter/output
-  --clean        Cleanup downloaded images, output config and disable PiSDWriter.service
 ```
+$ journalctl -u pisdwriter
+```
+
+settings.jsonを設定している場合は、処理開始時と終了時にnotificationを送信します。
+
 
 # アンインストール
 
