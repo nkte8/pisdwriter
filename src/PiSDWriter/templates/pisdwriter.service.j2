@@ -4,7 +4,7 @@ After=local-fs.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/pisdwriter --daemon
+ExecStart={{ app_execstart_command }}
 Environment=PYTHONUNBUFFERED=1
 
 [Install]

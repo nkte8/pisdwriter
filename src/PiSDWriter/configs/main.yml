@@ -1,0 +1,8 @@
+---
+gateway_addr: 192.168.3.1
+nameserver_addrs:
+  - 8.8.8.8
+  - 8.8.4.4
+authorized_keys:
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICERbvmiPTni6EX7qaYTyxBgkZd8GqckL7c3OOfrBWdR
+ip_address: 192.168.3.100

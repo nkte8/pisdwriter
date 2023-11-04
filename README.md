@@ -1,5 +1,6 @@
 # PiSDWriter
 ラズベリーパイでラズベリーパイの初期設定済みSDカードを焼くアプリケーションです。
+現在Ubuntu 22.04 LTSの書き込みにのみ対応しています。
 
 # インストール方法
 
@@ -7,7 +8,7 @@
 ```sh
 # raspberry piにあらかじめpipをインストール
 # apt install -y python-pip
-pip install git+https://github.com/nkte8/pisdwriter
+sudo pip install git+https://github.com/nkte8/pisdwriter
 ```
 
 ## 事前設定
@@ -25,6 +26,7 @@ nameserver_addrs: #DNSサーバ 2台まで設定可能
   - 8.8.4.4
 authorized_keys: #初期設定ユーザの公開鍵を直接記載
   - ssh-XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ip_address: 192.168.3.100 # 初期設定したSDカードの初回アクセス先
 ```
 
 `wifi.yml`（wifiでアクセスしたい場合作成・ない場合は有線設定が作成される）
@@ -37,7 +39,7 @@ wifi_setting:
 
 ### 2. セットアップ
 
-`pisdwriter -i`でOSイメージのダウンロードとtemplateの作成・systemdへ設定します。
+rootユーザにて`pisdwriter -i`でOSイメージのダウンロードとtemplateの作成・systemdへ設定します。
 ```log
 root@ubuntu:~# pisdwriter -i
 download: https://cdimage.ubuntu.com/releases/22.04.1/release/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz
