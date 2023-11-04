@@ -16,7 +16,6 @@ def send_notification(setting_path, message):
 
 def send_line_notification(config, message):
     headers = {
-        'content-type': 'application/json',
         'Authorization': 'Bearer ' + config["token"]
         }
     data = {'message': message}
